@@ -12,12 +12,19 @@ from pathlib import Path
 cwd = os.path.dirname(os.path.realpath(__file__)).replace("\\", "/")
 
 usb_drive_name = "AAA"
+usb_drive_connected = Path(f"/media/logintracker/'{usb_drive_name}'").is_file()
+
+if not usb_drive_connected:
+    print("WARNING - No USB Drive Found")
 
 
 def write_to_log(text):
-    os.system(
-        f""""echo '{datetime.datetime.now()}  {text}' >> /media/logintracker/'{usb_drive_name}'/logs.txt"""
-    )
+    if usb_drive_connected:
+        os.system(
+            f""""echo '{datetime.datetime.now()}  {text}' >> /media/logintracker/'{usb_drive_name}'/logs.txt"""
+        )
+    else:
+        print(f'{datetime.datetime.now()}  {text}')
 
 
 def add_simple_warning(warn_type):
@@ -41,20 +48,20 @@ window.title("NRG Login System")
 
 # check if there's a not-empty spreadsheet_url.txt file. Does not check for validity.
 url_file_path = f"{cwd}/spreadsheet_url.txt"
-if not Path(url_file_path).is_file():
+try:
+    if os.path.getsize(url_file_path) == 0:
+        add_simple_error(
+            "Empty URL File", "Please paste spreadsheet URL into spreadsheet_url.txt"
+        )
+    with open(url_file_path) as f:
+        spreadsheet_url = f.readline()
+except:
     with open(url_file_path, "w") as f:
         f.write("")
     add_simple_error(
         "No URL File, Creating...",
-        "Please paste spreadsheet URL into spreadsheet_url.txt",
+        "Please paste spreadsheet URL into the new spreadsheet_url.txt",
     )
-elif os.path.getsize(url_file_path) == 0:
-    add_simple_error(
-        "Empty URL File", "Please paste spreadsheet URL into spreadsheet_url.txt"
-    )
-else:
-    with open(url_file_path) as f:
-        spreadsheet_url = f.readline()
 
 # Check internet connection
 try:
@@ -72,8 +79,6 @@ if not Path(service_account_file_path).is_file():
 # Set style, and add images and static text
 logo_file_path = f"{cwd}/logo.png"
 if not Path(logo_file_path).is_file():
-    with open(logo_file_path, "w") as f:
-        f.write("")
     add_simple_error("No Logo Image", "Please add a logo.png file")
 
 image = PhotoImage(file=logo_file_path)

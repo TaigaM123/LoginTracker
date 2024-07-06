@@ -9,12 +9,16 @@ from pathlib import Path
 
 # CWD - current working directory
 # Backslashes are replaced by forward slashes because tkinter is stupid
-cwd = os.getcwd().replace("\\", "/")
+cwd = os.path.dirname(os.path.realpath(__file__)).replace("\\", "/")
 
 usb_drive_name = "AAA"
 
+
 def write_to_log(text):
-    os.system(f""""echo '{datetime.datetime.now()}  {text}' >> /media/logintracker/'{usb_drive_name}'/logs.txt""")
+    os.system(
+        f""""echo '{datetime.datetime.now()}  {text}' >> /media/logintracker/'{usb_drive_name}'/logs.txt"""
+    )
+
 
 def add_simple_warning(warn_type):
     write_to_log(f"WARNING - {warn_type}, skipping...")
@@ -29,6 +33,7 @@ def add_simple_error(error_type, instructions):
     ID_label.pack()
     window.mainloop()
     quit()
+
 
 # Initialize the Tkinter window
 window = tk.Tk()

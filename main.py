@@ -5,9 +5,9 @@ import datetime
 import socket
 import os
 import time
-import pathlib
 from pathlib import Path
 
+usb_drive_name = "AAA"
 
 def add_simple_warning(warn_type):
     print(f"WARNING - {warn_type}, skipping...")
@@ -23,9 +23,10 @@ def add_simple_error(error_type, instructions):
     window.mainloop()
     quit()
 
+
 # CWD - current working directory
 # Backslashes are replaced by forward slashes because tkinter is stupid
-cwd = os.getcwd().replace("\\","/")
+cwd = os.getcwd().replace("\\", "/")
 print(cwd)
 
 # Initialize the Tkinter window
@@ -60,7 +61,7 @@ except socket.error:
 # https://docs.gspread.org/en/latest/oauth2.html#for-bots-using-service-account
 service_account_file_path = f"{cwd}/service_account.json"
 if not Path(service_account_file_path).is_file():
-    add_simple_error("No service_account.json", "Please create and add a service_account.json")
+    add_simple_error("No service_account.json", "Please create a service_account.json")
 
 # Set style, and add images and static text
 logo_file_path = f"{cwd}/logo.png"
@@ -68,9 +69,10 @@ if not Path(logo_file_path).is_file():
     with open(logo_file_path, "w") as f:
         f.write("")
     add_simple_error("No Logo Image", "Please add a logo.png file")
-else:
-    image_label = ttk.Label(window, image=PhotoImage(logo_file_path))
-    image_label.pack()
+
+image = PhotoImage(file=logo_file_path)
+image_label = ttk.Label(window, image=image)
+image_label.pack()
 
 s = ttk.Style()
 s.configure(".", font=("Helvetica", 32))
@@ -80,7 +82,6 @@ how_to_use_label.pack()
 # Authenticate with Google Sheets
 gc = gspread.service_account(filename=service_account_file_path)
 
-# gc = gspread.oauth()
 print(f"Opening spreadsheet: {spreadsheet_url}")
 spreadsheet = gc.open_by_url(spreadsheet_url)
 
@@ -176,8 +177,8 @@ def upload_data(log_type):
                 ID_label.config(text=f"{log_type} {person_namestatus[0]}")
 
             os.system(
-                f"fswebcam -r 640x480 --no-banner ~/Pictures/{person_namestatus[0]}-{log_type}.png"
-            )  # https://raspberrypi-guide.github.io/electronics/using-usb-webcams#setting-up-and-using-a-usb-webcam https://www.luisllamas.es/en/commandcam/
+                f""""fswebcam -r 320x240 --no-banner /media/logintracker/'{usb_drive_name}'/'{person_namestatus[0]}-{log_type}-{datetime.datetime.now().strftime("%Y-%m-%d %H%M%S")}'.jpeg"""
+            )  # https://raspberrypi-guide.github.io/electronics/using-usb-webcams#setting-up-and-using-a-usb-webcam
             print(
                 f"{log_type} by {person_namestatus[0]} took {time.time() - start_time} seconds"
             )

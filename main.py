@@ -12,16 +12,16 @@ from pathlib import Path
 cwd = os.path.dirname(os.path.realpath(__file__)).replace("\\", "/")
 
 usb_drive_name = "LoginLogger"
-usb_drive_path = f"/media/$USER/'{usb_drive_name}'"
+usb_drive_path = f"/media/{os.getlogin()}/{usb_drive_name}"
 
-if not Path(usb_drive_path).is_file():
-    print("WARNING - No USB Drive Found")
+if not Path(usb_drive_path).is_dir():
+    print(f"WARNING - No USB Drive Found at {usb_drive_path}")
 
 
 def write_to_log(text):
-    if Path(usb_drive_path).is_file():
+    if Path(usb_drive_path).is_dir():
         os.system(
-            f""""echo '{datetime.datetime.now()}  {text}' >> {usb_drive_path}/logs.txt"""
+            f"""echo '{datetime.datetime.now()}  {text}' >> '{usb_drive_path}'/logs.txt"""
         )
     else:
         print(f"{datetime.datetime.now()}  {text}")
@@ -188,7 +188,7 @@ def upload_data(log_type):
                 ID_label.config(text=f"{log_type} {person_namestatus[0]}")
 
             os.system(
-                f""""fswebcam -r 320x240 --no-banner {usb_drive_path}/'{person_namestatus[0]}-{log_type}-{datetime.datetime.now().strftime("%Y-%m-%d %H%M%S")}'.jpeg"""
+                f"""fswebcam -r 320x240 --no-banner '{usb_drive_path}'/'{person_namestatus[0]}-{log_type}-{datetime.datetime.now().strftime("%Y-%m-%d %H%M%S")}'.jpeg"""
             )  # https://raspberrypi-guide.github.io/electronics/using-usb-webcams#setting-up-and-using-a-usb-webcam
             write_to_log(
                 f"{log_type} by {person_namestatus[0]} took {time.time() - start_time} seconds"

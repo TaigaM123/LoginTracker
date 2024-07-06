@@ -1,2 +1,4 @@
 spreadsheet_url.txt
 *.json
+logs.txt
+.venv

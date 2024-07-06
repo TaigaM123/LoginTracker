@@ -7,27 +7,28 @@ import os
 import time
 from pathlib import Path
 
+# CWD - current working directory
+# Backslashes are replaced by forward slashes because tkinter is stupid
+cwd = os.getcwd().replace("\\", "/")
+
 usb_drive_name = "AAA"
 
+def write_to_log(text):
+    os.system(f""""echo '{datetime.datetime.now()}  {text}' >> /media/logintracker/'{usb_drive_name}'/logs.txt""")
+
 def add_simple_warning(warn_type):
-    print(f"WARNING - {warn_type}, skipping...")
+    write_to_log(f"WARNING - {warn_type}, skipping...")
     ID_label.config(text=warn_type)
 
 
 def add_simple_error(error_type, instructions):
-    print(f"ERROR - {error_type}")
+    write_to_log(f"ERROR - {error_type}")
     ID_label = ttk.Label(
         window, text=f"{instructions}, close this window, and try again."
     )
     ID_label.pack()
     window.mainloop()
     quit()
-
-
-# CWD - current working directory
-# Backslashes are replaced by forward slashes because tkinter is stupid
-cwd = os.getcwd().replace("\\", "/")
-print(cwd)
 
 # Initialize the Tkinter window
 window = tk.Tk()
@@ -61,7 +62,7 @@ except socket.error:
 # https://docs.gspread.org/en/latest/oauth2.html#for-bots-using-service-account
 service_account_file_path = f"{cwd}/service_account.json"
 if not Path(service_account_file_path).is_file():
-    add_simple_error("No service_account.json", "Please create a service_account.json")
+    add_simple_error("No service_account.json", "Please add a service_account.json")
 
 # Set style, and add images and static text
 logo_file_path = f"{cwd}/logo.png"
@@ -82,7 +83,7 @@ how_to_use_label.pack()
 # Authenticate with Google Sheets
 gc = gspread.service_account(filename=service_account_file_path)
 
-print(f"Opening spreadsheet: {spreadsheet_url}")
+write_to_log(f"Opening spreadsheet: {spreadsheet_url}")
 spreadsheet = gc.open_by_url(spreadsheet_url)
 
 worksheet = spreadsheet.worksheet("[BACKEND] Logs")
@@ -140,11 +141,11 @@ def upload_data(log_type):
                     ],
                     "USER_ENTERED",
                 )
-                print("Appended 200 new rows")
+                write_to_log("Appended 200 new rows")
             if log_type == "logoutall" and person_namestatus[2] == "TRUE":
                 logged_in_cells = ID_sheet.findall("login", None, 3)
                 if logged_in_cells == []:
-                    add_simple_warning("Everyone's already logged out")
+                    add_simple_warning("Everyone's already logged out!")
                 else:
                     logged_in_IDs_nested = ID_sheet.batch_get(
                         [f"A{x.row}" for x in logged_in_cells]
@@ -169,7 +170,7 @@ def upload_data(log_type):
                         f"B{cell_value}:C{cell_value + len(logged_in_IDs_flat) - 1}",
                     )
                     ID_label.config(text=f"Goodnight, {person_namestatus[0]}!")
-                    print(f"Logged out {len(logged_in_IDs_flat)} users")
+                    write_to_log(f"Logged out {len(logged_in_IDs_flat)} users")
             elif log_type == "logoutall":
                 add_simple_warning(f"{person_namestatus[0]} can't log everyone out.")
             else:
@@ -179,7 +180,7 @@ def upload_data(log_type):
             os.system(
                 f""""fswebcam -r 320x240 --no-banner /media/logintracker/'{usb_drive_name}'/'{person_namestatus[0]}-{log_type}-{datetime.datetime.now().strftime("%Y-%m-%d %H%M%S")}'.jpeg"""
             )  # https://raspberrypi-guide.github.io/electronics/using-usb-webcams#setting-up-and-using-a-usb-webcam
-            print(
+            write_to_log(
                 f"{log_type} by {person_namestatus[0]} took {time.time() - start_time} seconds"
             )
 
@@ -210,5 +211,5 @@ ID_label = ttk.Label(window)
 ID_label.pack()
 
 # Start the Tkinter main loop
-print("Initialzation complete, launching GUI...")
+write_to_log("Initialzation complete, launching GUI...")
 window.mainloop()

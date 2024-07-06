@@ -11,20 +11,20 @@ from pathlib import Path
 # Backslashes are replaced by forward slashes because tkinter is stupid
 cwd = os.path.dirname(os.path.realpath(__file__)).replace("\\", "/")
 
-usb_drive_name = "AAA"
-usb_drive_connected = Path(f"/media/logintracker/'{usb_drive_name}'").is_file()
+usb_drive_name = "LoginLogger"
+usb_drive_path = f"/media/$USER/'{usb_drive_name}'"
 
-if not usb_drive_connected:
+if not Path(usb_drive_path).is_file():
     print("WARNING - No USB Drive Found")
 
 
 def write_to_log(text):
-    if usb_drive_connected:
+    if Path(usb_drive_path).is_file():
         os.system(
-            f""""echo '{datetime.datetime.now()}  {text}' >> /media/logintracker/'{usb_drive_name}'/logs.txt"""
+            f""""echo '{datetime.datetime.now()}  {text}' >> {usb_drive_path}/logs.txt"""
         )
     else:
-        print(f'{datetime.datetime.now()}  {text}')
+        print(f"{datetime.datetime.now()}  {text}")
 
 
 def add_simple_warning(warn_type):
@@ -188,7 +188,7 @@ def upload_data(log_type):
                 ID_label.config(text=f"{log_type} {person_namestatus[0]}")
 
             os.system(
-                f""""fswebcam -r 320x240 --no-banner /media/logintracker/'{usb_drive_name}'/'{person_namestatus[0]}-{log_type}-{datetime.datetime.now().strftime("%Y-%m-%d %H%M%S")}'.jpeg"""
+                f""""fswebcam -r 320x240 --no-banner {usb_drive_path}/'{person_namestatus[0]}-{log_type}-{datetime.datetime.now().strftime("%Y-%m-%d %H%M%S")}'.jpeg"""
             )  # https://raspberrypi-guide.github.io/electronics/using-usb-webcams#setting-up-and-using-a-usb-webcam
             write_to_log(
                 f"{log_type} by {person_namestatus[0]} took {time.time() - start_time} seconds"

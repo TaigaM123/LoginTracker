@@ -23,13 +23,17 @@ def add_simple_error(error_type, instructions):
     window.mainloop()
     quit()
 
+# CWD - current working directory
+# Backslashes are replaced by forward slashes because tkinter is stupid
+cwd = os.getcwd().replace("\\","/")
+print(cwd)
 
 # Initialize the Tkinter window
 window = tk.Tk()
 window.title("NRG Login System")
 
 # check if there's a not-empty spreadsheet_url.txt file. Does not check for validity.
-url_file_path = f"{pathlib.Path().resolve()}/spreadsheet_url.txt"
+url_file_path = f"{cwd}/spreadsheet_url.txt"
 if not Path(url_file_path).is_file():
     with open(url_file_path, "w") as f:
         f.write("")
@@ -52,13 +56,14 @@ try:
 except socket.error:
     add_simple_error("No internet", "No Internet. Please reconnect")
 
-# check for credentials.json
-credentials_file_path = f"{pathlib.Path().resolve()}/credentials.json"
-if not Path(credentials_file_path).is_file():
-    add_simple_error("No credentials.json", "Please create and add a credentials.json")
+# Check for service account credentials
+# https://docs.gspread.org/en/latest/oauth2.html#for-bots-using-service-account
+service_account_file_path = f"{cwd}/service_account.json"
+if not Path(service_account_file_path).is_file():
+    add_simple_error("No service_account.json", "Please create and add a service_account.json")
 
 # Set style, and add images and static text
-logo_file_path = f"{pathlib.Path().resolve()}/logo.png"
+logo_file_path = f"{cwd}/logo.png"
 if not Path(logo_file_path).is_file():
     with open(logo_file_path, "w") as f:
         f.write("")
@@ -73,10 +78,8 @@ how_to_use_label = ttk.Label(window, text="Enter your Student ID:")
 how_to_use_label.pack()
 
 # Authenticate with Google Sheets
-gc = gspread.oauth(
-    credentials_filename=credentials_file_path,
-    authorized_user_filename=f"{pathlib.Path().resolve()}/authorized_user.json",
-)
+gc = gspread.service_account(filename=service_account_file_path)
+
 # gc = gspread.oauth()
 print(f"Opening spreadsheet: {spreadsheet_url}")
 spreadsheet = gc.open_by_url(spreadsheet_url)

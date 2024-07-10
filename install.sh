@@ -7,6 +7,8 @@ sudo chmod -R a+rw /usr/local/bin/LoginTracker
 
 touch /usr/local/bin/LoginTracker/spreadsheet_url.txt
 
+ln -s /usr/local/bin/LoginTracker ~/LoginTracker
+
 echo "creating venv..."
 python3 -m venv /usr/local/bin/LoginTracker/.venv
 source /usr/local/bin/LoginTracker/.venv/bin/activate

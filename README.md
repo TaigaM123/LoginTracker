@@ -13,7 +13,8 @@ Hardware:
 * USB flash drive named "LoginLogger" (no quotes, you can change the name it's looking for in main.py)
 * Internet connection
 
-TODO - How to set up the service_account.json and more stuff
+To set up a service_account.json, see [here](https://docs.gspread.org/en/latest/oauth2.html#for-bots-using-service-account).
+A template for the Google Sheet is [here](https://docs.google.com/spreadsheets/d/1hAG3BInsXe4kDI7Lr8NNKz52V_XTZJkCf4aOdqBTRyw/edit?gid=1135907022#gid=1135907022). 
 
 ---
 Thanks @cj-plusplus!

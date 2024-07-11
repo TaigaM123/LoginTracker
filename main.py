@@ -7,8 +7,9 @@ import os
 import time
 from pathlib import Path
 
-# CWD - current working directory
-# Backslashes are replaced by forward slashes because tkinter is stupid
+start_time = time.time()
+
+# CWD - current working directory, with backslashes replaced by forward slashes
 cwd = os.path.dirname(os.path.realpath(__file__)).replace("\\", "/")
 
 usb_drive_name = "LoginLogger"
@@ -70,28 +71,28 @@ try:
 except socket.error:
     add_simple_error("No internet", "No Internet. Please reconnect")
 
-# Check for service account credentials
+# Authenticate with Google Sheets
 # https://docs.gspread.org/en/latest/oauth2.html#for-bots-using-service-account
 service_account_file_path = f"{cwd}/service_account.json"
-if not Path(service_account_file_path).is_file():
+try:
+    gc = gspread.service_account(filename=service_account_file_path)
+except:
     add_simple_error("No service_account.json", "Please add a service_account.json")
 
 # Set style, and add images and static text
 logo_file_path = f"{cwd}/logo.png"
-if not Path(logo_file_path).is_file():
-    add_simple_error("No Logo Image", "Please add a logo.png file")
-
-image = PhotoImage(file=logo_file_path)
-image_label = ttk.Label(window, image=image)
-image_label.pack()
+try:
+    image = PhotoImage(file=logo_file_path)
+    image_label = ttk.Label(window, image=image)
+    image_label.pack()
+except:
+    write_to_log("WARNING - No Logo Image Found")
+    
 
 s = ttk.Style()
 s.configure(".", font=("Helvetica", 32))
 how_to_use_label = ttk.Label(window, text="Enter your Student ID:")
 how_to_use_label.pack()
-
-# Authenticate with Google Sheets
-gc = gspread.service_account(filename=service_account_file_path)
 
 write_to_log(f"Opening spreadsheet: {spreadsheet_url}")
 spreadsheet = gc.open_by_url(spreadsheet_url)
@@ -189,7 +190,7 @@ def upload_data(log_type):
 
             os.system(
                 f"""fswebcam -r 320x240 --no-banner '{usb_drive_path}'/'{person_namestatus[0]}-{datetime.datetime.now().strftime("%Y-%m-%d %H%M%S")}-{log_type}'.jpeg"""
-            )  # https://raspberrypi-guide.github.io/electronics/using-usb-webcams#setting-up-and-using-a-usb-webcam
+            )  # https://raspberrypi-guide.github.io/electronics/using-usb-webcams
             write_to_log(
                 f"{log_type} by {person_namestatus[0]} took {time.time() - start_time} seconds"
             )
@@ -221,5 +222,5 @@ ID_label = ttk.Label(window)
 ID_label.pack()
 
 # Start the Tkinter main loop
-write_to_log("Initialzation complete, launching GUI...")
+write_to_log(f"Initialzation complete in {time.time() - start_time} seconds, launching GUI...")
 window.mainloop()

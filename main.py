@@ -48,30 +48,6 @@ def add_simple_error(error_type, instructions):
 window = tk.Tk()
 window.title("NRG Login System")
 
-# check if there's a not-empty spreadsheet_url.txt file. Does not check for validity.
-url_file_path = f"{cwd}/spreadsheet_url.txt"
-try:
-    if os.path.getsize(url_file_path) == 0:
-        add_simple_error(
-            "Empty URL File", "Please paste spreadsheet URL into spreadsheet_url.txt"
-        )
-    with open(url_file_path) as f:
-        spreadsheet_url = f.readline()
-except:
-    with open(url_file_path, "w") as f:
-        f.write("")
-    add_simple_error(
-        "No URL File, Creating...",
-        "Please paste spreadsheet URL into the new spreadsheet_url.txt",
-    )
-
-# Check internet connection
-try:
-    socket.setdefaulttimeout(3)
-    socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(("8.8.8.8", 53))
-except socket.error:
-    add_simple_error("No internet", "No Internet. Please reconnect")
-
 # Authenticate with Google Sheets
 # https://docs.gspread.org/en/latest/oauth2.html#for-bots-using-service-account
 service_account_file_path = f"{cwd}/service_account.json"
@@ -80,23 +56,29 @@ try:
 except:
     add_simple_error("No service_account.json", "Please add a service_account.json")
 
-# Set style, and add images and static text
-logo_file_path = f"{cwd}/logo.png"
+url_file_path = f"{cwd}/spreadsheet_url.txt"
 try:
-    image = PhotoImage(file=logo_file_path)
-    image_label = ttk.Label(window, image=image)
-    image_label.pack()
+    with open(url_file_path) as f:
+        spreadsheet_url = f.readline()
+    socket.create_connection(("www.google.com", 80), timeout=3)
+    write_to_log(f"Opening spreadsheet: {spreadsheet_url}")
+    spreadsheet = gc.open_by_url(spreadsheet_url)
+except FileNotFoundError:
+    with open(url_file_path, "w") as f:
+        f.write("")
+    add_simple_error(
+        "No URL File, Creating...",
+        "Please paste spreadsheet URL into the new spreadsheet_url.txt",
+    )
+except gspread.exceptions.NoValidUrlKeyFound:
+    add_simple_error(
+        "Invalid or Empty URL File",
+        "Please paste spreadsheet URL into spreadsheet_url.txt",
+    )
+except socket.error:
+    add_simple_error("No internet", "No internet. Please connect to internet")
 except:
-    write_to_log("WARNING - No Logo Image Found")
-
-
-s = ttk.Style()
-s.configure(".", font=("Helvetica", 32))
-how_to_use_label = ttk.Label(window, text="Enter your Student ID:")
-how_to_use_label.pack()
-
-write_to_log(f"Opening spreadsheet: {spreadsheet_url}")
-spreadsheet = gc.open_by_url(spreadsheet_url)
+    add_simple_error("Unknown Error", "Unknown Error. Please")
 
 worksheet = spreadsheet.worksheet("[BACKEND] Logs")
 ID_sheet = spreadsheet.worksheet("[BACKEND] ID List")
@@ -194,6 +176,21 @@ def upload_data(log_type):
                 f"{log_type} by {person_namestatus[0]} took {time.time() - start_time} seconds"
             )
 
+
+# Set style, and add images and static text
+logo_file_path = f"{cwd}/logo.png"
+try:
+    image = PhotoImage(file=logo_file_path)
+    image_label = ttk.Label(window, image=image)
+    image_label.pack()
+except:
+    write_to_log("WARNING - No Logo Image Found")
+
+
+s = ttk.Style()
+s.configure(".", font=("Helvetica", 32))
+how_to_use_label = ttk.Label(window, text="Enter your Student ID:")
+how_to_use_label.pack()
 
 # Entry widget for user input
 entry = ttk.Entry(window, font=("helvetica", 32), justify="center")

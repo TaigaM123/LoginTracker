@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, PhotoImage
 import gspread
+from gspread.cell import Cell
 import datetime
 import socket
 import os
@@ -102,20 +103,16 @@ ID_sheet = spreadsheet.worksheet("[BACKEND] ID List")
 
 
 def single_upload(log_type, cell_value, input_id):
-    worksheet.batch_update(
-        [
-            {
-                "range": f"A{cell_value}:C{cell_value}",
-                "values": [
-                    [
-                        int(input_id),
-                        datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
-                        log_type,
-                    ]
-                ],
-            }
-        ]
-    )
+    cell_list = [
+        Cell(row=cell_value, col=1, value=input_id),
+        Cell(
+            row=cell_value,
+            col=2,
+            value=datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
+        ),
+        Cell(row=cell_value, col=3, value=log_type),
+    ]
+    worksheet.update_cells(cell_list, "USER_ENTERED")
 
 
 # Function to upload data to the spreadsheet

@@ -7,6 +7,7 @@ import socket
 import os
 import time
 from pathlib import Path
+from threading import Thread
 
 usb_drive_name = "LoginLogger"
 
@@ -118,13 +119,16 @@ def single_upload(log_type, cell_value, input_id):
 # Function to upload data to the spreadsheet
 def upload_data(log_type):
     start_time = time.time()
-    ID_label.config(text=None)
     input_id = entry.get()
-    if not input_id:
-        return
-
+    entry.delete(0, tk.END)
+    ID_label.config(text="Working...")
+    if not input_id.isnumeric():
+        if not input_id:
+            ID_label.config(text="")
+            return
+        add_simple_warning("Invalid ID")
     person_cell = ID_sheet.find(input_id)
-    if not input_id.isnumeric() or person_cell is None:
+    if person_cell is None:
         add_simple_warning("Invalid ID")
     else:
         vital_info = ID_sheet.batch_get(
@@ -155,7 +159,6 @@ def upload_data(log_type):
                 logged_in_cells = ID_sheet.findall("login", None, 3)
                 if logged_in_cells == []:
                     add_simple_warning("Everyone's already logged out!")
-                    entry.delete(0, tk.END)
                     return
                 else:
                     logged_in_IDs_nested = ID_sheet.batch_get(
@@ -184,7 +187,6 @@ def upload_data(log_type):
                     write_to_log(f"Logged out {len(logged_in_IDs_flat)} users")
             elif log_type == "logoutall":
                 add_simple_warning(f"{person_namestatus[0]} can't log everyone out.")
-                entry.delete(0, tk.END)
                 return
             else:
                 single_upload(log_type, cell_value, input_id)
@@ -197,8 +199,6 @@ def upload_data(log_type):
                 f"{log_type} by {person_namestatus[0]} took {time.time() - start_time} seconds"
             )
 
-        entry.delete(0, tk.END)
-
 
 # Entry widget for user input
 entry = ttk.Entry(window, font=("helvetica", 32), justify="center")
@@ -206,13 +206,22 @@ entry.pack()
 
 # Buttons for login, logout, and logout all
 button_login = ttk.Button(
-    window, text="Login", width=25, command=lambda: upload_data("login")
+    window,
+    text="Login",
+    width=25,
+    command=lambda: Thread(target=upload_data, args=("login",)).start(),
 )
 button_logout = ttk.Button(
-    window, text="Logout", width=25, command=lambda: upload_data("logout")
+    window,
+    text="Logout",
+    width=25,
+    command=lambda: Thread(target=upload_data, args=("logout",)).start(),
 )
 button_logout_all = ttk.Button(
-    window, text="Logout All", width=25, command=lambda: upload_data("logoutall")
+    window,
+    text="Logout All",
+    width=25,
+    command=lambda: Thread(target=upload_data, args=("logoutall",)).start(),
 )
 
 button_login.pack()

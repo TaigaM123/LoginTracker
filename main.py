@@ -146,7 +146,7 @@ def upload_data(log_type):
                             None,
                             None,
                             None,
-                            f'=IFERROR(IF(C{cell_value+i}="logout",B{cell_value+i} - INDEX(B$2:B{cell_value-1+i}, MAX(IF((A$2:A{cell_value-1+i}=A{cell_value+i})*(C$2:C{cell_value-1+i}="login"), ROW(A$2:A{cell_value-1+i})-ROW(A$2)+1))),))',
+                            f'IF(C{cell_value+i}="logout",B{cell_value+i}-INDEX(FILTER(B$1:B{cell_value+i-1}, C$1:C{cell_value+i-1}="login"), COUNT(FILTER(B$1:B{cell_value+i-1}, C$1:C{cell_value+i-1}="login"))),)',
                             f"""=IFERROR(VLOOKUP(A{cell_value+i},'[BACKEND] ID List'!A:B,2,FALSE))""",
                         ]
                         for i in range(200)

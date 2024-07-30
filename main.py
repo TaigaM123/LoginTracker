@@ -147,6 +147,7 @@ def upload_data(log_type):
                             None,
                             None,
                             f'=IFERROR(IF(C{cell_value+i}="logout",B{cell_value+i} - INDEX(B$2:B{cell_value-1+i}, MAX(IF((A$2:A{cell_value-1+i}=A{cell_value+i})*(C$2:C{cell_value-1+i}="login"), ROW(A$2:A{cell_value-1+i})-ROW(A$2)+1))),))',
+                            f"""=IFERROR(VLOOKUP(A{cell_value+i},'[BACKEND] ID List'!A:B,2,FALSE))""",
                         ]
                         for i in range(200)
                     ],
@@ -222,5 +223,7 @@ ID_label = ttk.Label(window)
 ID_label.pack()
 
 # Start the Tkinter main loop
-write_to_log(f"Initialzation complete in {time.time() - start_time} seconds, launching GUI...")
+write_to_log(
+    f"Initialzation complete in {time.time() - start_time} seconds, launching GUI..."
+)
 window.mainloop()

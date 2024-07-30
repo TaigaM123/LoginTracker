@@ -8,12 +8,12 @@ import os
 import time
 from pathlib import Path
 
+usb_drive_name = "LoginLogger"
+
 start_time = time.time()
 
 # CWD - current working directory, with backslashes replaced by forward slashes
 cwd = os.path.dirname(os.path.realpath(__file__)).replace("\\", "/")
-
-usb_drive_name = "LoginLogger"
 usb_drive_path = f"/media/{os.getlogin()}/{usb_drive_name}"
 
 if not Path(usb_drive_path).is_dir():
@@ -184,6 +184,8 @@ def upload_data(log_type):
                     write_to_log(f"Logged out {len(logged_in_IDs_flat)} users")
             elif log_type == "logoutall":
                 add_simple_warning(f"{person_namestatus[0]} can't log everyone out.")
+                entry.delete(0, tk.END)
+                return
             else:
                 single_upload(log_type, cell_value, input_id)
                 ID_label.config(text=f"{log_type} {person_namestatus[0]}")

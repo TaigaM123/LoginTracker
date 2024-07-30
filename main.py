@@ -87,7 +87,7 @@ try:
     image_label.pack()
 except:
     write_to_log("WARNING - No Logo Image Found")
-    
+
 
 s = ttk.Style()
 s.configure(".", font=("Helvetica", 32))
@@ -158,6 +158,8 @@ def upload_data(log_type):
                 logged_in_cells = ID_sheet.findall("login", None, 3)
                 if logged_in_cells == []:
                     add_simple_warning("Everyone's already logged out!")
+                    entry.delete(0, tk.END)
+                    return
                 else:
                     logged_in_IDs_nested = ID_sheet.batch_get(
                         [f"A{x.row}" for x in logged_in_cells]

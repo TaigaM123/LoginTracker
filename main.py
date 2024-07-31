@@ -153,7 +153,7 @@ def upload_data(log_type):
                     )
                     batchlogoutdate = [
                         [
-                            datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
+                            f"=B{cell_value-1}",
                             "logout",
                         ]
                     ] * len(logged_in_IDs_flat)
@@ -195,7 +195,7 @@ how_to_use_label = ttk.Label(window, text="Enter your Student ID:")
 how_to_use_label.pack()
 
 # Entry widget for user input
-entry = ttk.Entry(window, font=("helvetica", 32), justify="center")
+entry = ttk.Entry(window, font=("helvetica", 32), justify="center",show='*')
 entry.pack()
 
 # Buttons for login, logout, and logout all

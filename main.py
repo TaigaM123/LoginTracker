@@ -56,11 +56,15 @@ try:
 except:
     add_simple_error("No service_account.json", "Please add a service_account.json")
 
+try:
+    socket.create_connection(("www.google.com", 80), timeout=3)
+except:
+    add_simple_error("No internet", "No internet. Please connect to internet")
+
 url_file_path = f"{cwd}/spreadsheet_url.txt"
 try:
     with open(url_file_path) as f:
         spreadsheet_url = f.readline()
-    socket.create_connection(("www.google.com", 80), timeout=3)
     write_to_log(f"Opening spreadsheet: {spreadsheet_url}")
     spreadsheet = gc.open_by_url(spreadsheet_url)
 except FileNotFoundError:
@@ -75,8 +79,6 @@ except gspread.exceptions.NoValidUrlKeyFound:
         "Invalid or Empty URL File",
         "Please paste spreadsheet URL into spreadsheet_url.txt",
     )
-except socket.error:
-    add_simple_error("No internet", "No internet. Please connect to internet")
 except:
     add_simple_error("Unknown Error", "Unknown Error. Please")
 

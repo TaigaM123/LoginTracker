@@ -18,15 +18,19 @@ usb_drive_path = f"/media/{os.getlogin()}/{usb_drive_name}"
 
 if not Path(usb_drive_path).is_dir():
     print(f"WARNING - No USB Drive Found at {usb_drive_path}")
+    usb_drive_path = (
+        os.path.expanduser("~").replace("\\", "/") + "/Desktop/VirtualDrive"
+    )
+    # Ensures virtual drive folder exists
+    if not os.path.exists(usb_drive_path):
+        os.mkdir(usb_drive_path)
+    print(f"Using {usb_drive_path} instead")
 
 
 def write_to_log(text):
-    if Path(usb_drive_path).is_dir():
-        os.system(
-            f"""echo '{datetime.datetime.now()}  {text}' >> '{usb_drive_path}'/logs.txt"""
-        )
-    else:
-        print(f"{datetime.datetime.now()}  {text}")
+    os.system(
+        f"""echo '{datetime.datetime.now()}  {text}' >> '{usb_drive_path}'/logs.txt"""
+    )
 
 
 def add_simple_warning(warn_type):
@@ -195,7 +199,7 @@ how_to_use_label = ttk.Label(window, text="Enter your Student ID:")
 how_to_use_label.pack()
 
 # Entry widget for user input
-entry = ttk.Entry(window, font=("helvetica", 32), justify="center",show='*')
+entry = ttk.Entry(window, font=("helvetica", 32), justify="center", show="*")
 entry.pack()
 
 # Buttons for login, logout, and logout all
